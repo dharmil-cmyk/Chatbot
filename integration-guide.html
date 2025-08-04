@@ -1,0 +1,226 @@
+<!-- 
+VAPI CHATBOT INTEGRATION GUIDE
+Simply copy the HTML snippet below and paste it into your website's HTML file, 
+right before the closing </body> tag.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Guide - Vapi Chatbot</title>
+    <style>
+        body { 
+            font-family: system-ui, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6; 
+        }
+        .code-block { 
+            background: #f5f5f5; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            overflow-x: auto; 
+        }
+        .highlight { 
+            background: #fff3cd; 
+            border: 1px solid #ffeaa7; 
+            border-radius: 4px; 
+            padding: 10px; 
+            margin: 10px 0; 
+        }
+        h1 { color: #333; }
+        h2 { color: #4c8697; border-bottom: 2px solid #4c8697; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 Vapi Chatbot Integration Guide</h1>
+    
+    <p>Follow these simple steps to add the Vapi chatbot to your website:</p>
+
+    <h2>Step 1: Basic Integration (Copy & Paste)</h2>
+    <p>Copy this code and paste it right before the closing <code>&lt;/body&gt;</code> tag in your HTML:</p>
+
+    <div class="code-block">
+<pre>&lt;!-- Vapi Chatbot Integration --&gt;
+&lt;script type="module"&gt;
+// ⚠️ IMPORTANT: Replace these with your actual Vapi credentials
+const VAPI_CONFIG = {
+    publicKey: 'your-vapi-public-key-here',
+    assistantId: 'your-vapi-assistant-id-here',
+    assistantName: 'Sara',
+    welcomeMessage: 'Hi! How can I help you today?',
+    primaryColor: '#4c8697',
+    position: 'bottom-right'
+};
+
+// Load Vapi SDK
+let Vapi;
+try {
+    const module = await import('https://cdn.skypack.dev/@vapi-ai/web');
+    Vapi = module.default;
+} catch (error) {
+    console.error('Failed to load Vapi SDK:', error);
+}
+
+// Create chatbot elements
+function createChatbot() {
+    // Inject styles
+    const styles = document.createElement('style');
+    styles.innerHTML = `
+        #vapi-launcher {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: ${VAPI_CONFIG.primaryColor};
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            font-family: system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #vapi-launcher:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+        }
+    `;
+    document.head.appendChild(styles);
+
+    // Create launcher button
+    const launcher = document.createElement('button');
+    launcher.id = 'vapi-launcher';
+    launcher.innerHTML = '💬 Chat with ' + VAPI_CONFIG.assistantName;
+    launcher.onclick = startChat;
+    document.body.appendChild(launcher);
+}
+
+// Initialize Vapi session
+let vapi = null;
+let isActive = false;
+
+async function startChat() {
+    if (isActive || !Vapi) return;
+    
+    try {
+        vapi = new Vapi(VAPI_CONFIG.publicKey);
+        await vapi.start(VAPI_CONFIG.assistantId);
+        isActive = true;
+        
+        console.log('✅ Vapi chat started successfully!');
+        document.getElementById('vapi-launcher').innerHTML = '🟢 Chat Active';
+        
+        // Optional: Handle messages
+        vapi.on('message', (data) => {
+            console.log('Message received:', data);
+        });
+        
+        vapi.on('call-end', () => {
+            isActive = false;
+            document.getElementById('vapi-launcher').innerHTML = '💬 Chat with ' + VAPI_CONFIG.assistantName;
+        });
+        
+    } catch (error) {
+        console.error('Failed to start Vapi chat:', error);
+        alert('Chat service is temporarily unavailable. Please try again later.');
+    }
+}
+
+// Initialize when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', createChatbot);
+} else {
+    createChatbot();
+}
+&lt;/script&gt;</pre>
+    </div>
+
+    <div class="highlight">
+        <strong>⚠️ Important:</strong> Make sure to replace <code>your-vapi-public-key-here</code> and <code>your-vapi-assistant-id-here</code> with your actual Vapi credentials!
+    </div>
+
+    <h2>Step 2: Advanced Integration (Full UI)</h2>
+    <p>For a complete chat interface with message history, use the standalone script:</p>
+
+    <div class="code-block">
+<pre>&lt;!-- Include the full chatbot script --&gt;
+&lt;script src="vapi-chatbot-embed.js"&gt;&lt;/script&gt;</pre>
+    </div>
+
+    <p><strong>Or inline the script:</strong></p>
+    <div class="code-block">
+<pre>&lt;script&gt;
+// Paste the contents of vapi-chatbot-embed.js here
+// Remember to update the VAPI_CONFIG object with your credentials
+&lt;/script&gt;</pre>
+    </div>
+
+    <h2>Step 3: Configuration Options</h2>
+    <p>You can customize the chatbot by modifying the <code>VAPI_CONFIG</code> object:</p>
+
+    <div class="code-block">
+<pre>const VAPI_CONFIG = {
+    publicKey: 'your-vapi-public-key',           // Your Vapi public key
+    assistantId: 'your-vapi-assistant-id',       // Your Vapi assistant ID
+    assistantName: 'Sara',                       // Name displayed in chat
+    welcomeMessage: 'Hi! How can I help?',       // First message shown
+    primaryColor: '#4c8697',                     // Chat theme color
+    position: 'bottom-right',                    // 'bottom-right' or 'bottom-left'
+    consentKey: 'vapi_widget_consent'            // Local storage key for consent
+};</pre>
+    </div>
+
+    <h2>Step 4: Testing</h2>
+    <ul>
+        <li>✅ Open your website in a browser</li>
+        <li>✅ Look for the chat button in the bottom-right corner</li>
+        <li>✅ Click the button to start a conversation</li>
+        <li>✅ Check the browser console for any error messages</li>
+    </ul>
+
+    <h2>Common Issues & Solutions</h2>
+    
+    <h3>🚫 "Failed to load Vapi SDK"</h3>
+    <p><strong>Solution:</strong> Make sure your website is served over HTTPS (not file://) or use a local development server.</p>
+
+    <h3>🚫 "Authentication failed"</h3>
+    <p><strong>Solution:</strong> Double-check your public key and assistant ID in the Vapi dashboard.</p>
+
+    <h3>🚫 Button appears but chat doesn't start</h3>
+    <p><strong>Solution:</strong> Open browser console (F12) to see error messages. Usually a configuration issue.</p>
+
+    <h2>WordPress Integration</h2>
+    <p>For WordPress websites:</p>
+    <ol>
+        <li>Go to <strong>Appearance → Theme Editor</strong></li>
+        <li>Edit <strong>footer.php</strong></li>
+        <li>Paste the script code before <code>&lt;/body&gt;</code></li>
+        <li>Save changes</li>
+    </ol>
+
+    <div class="highlight">
+        <strong>💡 Pro Tip:</strong> For WordPress, you can also use a plugin like "Insert Headers and Footers" to add the script without editing theme files.
+    </div>
+
+    <h2>Need Help?</h2>
+    <p>If you encounter any issues:</p>
+    <ul>
+        <li>Check the browser console for error messages</li>
+        <li>Verify your Vapi credentials are correct</li>
+        <li>Ensure your website is served over HTTPS</li>
+        <li>Test with the simple integration first, then upgrade to the full UI</li>
+    </ul>
+
+</body>
+</html>
